@@ -23,6 +23,6 @@ mount "${MAINSTORAGE}1" /mnt/boot
 mount "${MAINSTORAGE}4" /mnt/home
 pacstrap /mnt base base-devel linux-zen linux-zen-headers vim amd-ucode
 
-gensftab -U /mnt >> /mnt/etc/fstab
+genfstab -U /mnt >> /mnt/etc/fstab
 arch-chroot /mnt
 echo "DONE :)"
