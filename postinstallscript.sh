@@ -6,15 +6,15 @@
 # own test case and post-install arch linux install. But you can use it if you want :>
 
 # Variable used for all sorts of statement occuring while execution
-TIMEZONE="/usr/share/zoneinfo/Asia/Manila"
-LOCALTIME="/etc/localtime"
-GRUB_TARGET="/boot/"
-USERNAME="laynux"
-HOSTNAME="laynux-pc"
+timezone="/usr/share/zoneinfo/Asia/Manila"
+localtime="/etc/localtime"
+grub_target="/boot/"
+username="laynux"
+hostname="laynux-pc"
 USER="xelectro"
 
-# Settings TIMEZONE symlinks
-ln -sf $TIMEZONE $LOCALTIME
+# Settings timezone symlinks
+ln -sf $timezone $localtime
 
 # Update rtc clock
 hwclock --systohc
@@ -25,14 +25,16 @@ sed -i 's/#en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen
 # Create a new file for system wide locale setting
 echo LANG=en_US.UTF-8 > /etc/locale.conf
 
-# Create a HOSTNAME file for the system
-echo $HOSTNAME > /etc/HOSTNAME
+# Create a hostname file for the system
+echo $hostname > /etc/hostname
 
-# Used to concatenate the existing hostfile, adding the HOSTNAME to the existing host file
-echo -e "127.0.0.1\t $HOSTNAME\n::1\t $HOSTNAME\n127.0.0.1\t${HOSTNAME}.localdomain\t $HOSTNAME" >> /etc/hosts
+# Used to concatenate the existing hostfile, adding the hostname to the existing host file
+echo -e "127.0.0.1\t $hostname\n
+	::1\t $hostname\n127.0.0.1\t${hostname}.localdomain\t $hostname"
+	>> /etc/hosts
 
-# Install the bootloader assuming the EFI partition is mounted to $GRUB_TARGET
-grub-install --target=x86_64-efi --efi-directory=$GRUB_TARGET --bootloader-id=ArchLinux
+# Install the bootloader assuming the EFI partition is mounted to $grub_target
+grub-install --target=x86_64-efi --efi-directory=$grub_target --bootloader-id=ArchLinux
 
 # Generating image for grub bootloader next boot
 grub-mkconfig -o /boot/grub/grub.cfg
@@ -56,4 +58,4 @@ systemctl enable bluetooth
 # Flexing i use btw linux user uwu
 neofetch
 echo "All done! :>"
-read -p "Press any key to exit." tmp
+read -p "Press any key to exit." 

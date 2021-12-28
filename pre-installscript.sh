@@ -1,28 +1,109 @@
 #!/bin/sh
 
-MAINSTORAGE="/dev/sda"
+SELECTEDSTORAGE=""
+PARTCOUNT=1
+PARTITIONLABEL=""
+PARTITIONSIZE=0
+repeat="true"
+ERRORREPEAT="true"
+PARTCODE=("EF00" "8200" "8300")
+if [[ ! -e "/usr/bin/gdisk" ]]; then
+    pacman -S gdisk --noconfirm
+fi
+lsblk
+echo -e "Enter secondary storage location to specify the root installation\n Ex. /dev/sda, /dev/nvme0n1"
+read $SELECTEDSTORAGE
 
-pacman -S gdisk --noconfirm
-sgdisk -o $MAINSTORAGE
-sgdisk -n 1::+512MiB -t 1:EF00 -c 1:BOOT $MAINSTORAGE
-sgdisk -n 2::+4GiB -t 2:8200 -c 2:SWAP $MAINSTORAGE
-sgdisk -n 3::+32GiB -t 3:8300 -c 3:ROOT $MAINSTORAGE
-sgdisk -n 4:: -t 4:8300 -c 4:HOME $MAINSTORAGE
 
-mkfs.fat -F32 "${MAINSTORAGE}1"
-mkswap "${MAINSTORAGE}2"
-swapon "${MAINSTORAGE}2"
-mkfs.ext4 "${MAINSTORAGE}3"
-mkfs.ext4 "${MAINSTORAGE}4"
+if [[ -e "$SELECTEDSTORAGE" ]]; then
 
-mount "${MAINSTORAGE}3" /mnt
-mkdir -p /mnt/boot
-mkdir -p /mnt/home
+    sgdisk -o $SELECTEDSTORAGE
+    while [[ repeat == "true" ]]; do
+        echo "Enter Partition name:"
+        read $PARTITIONLABEL
 
-mount "${MAINSTORAGE}1" /mnt/boot
-mount "${MAINSTORAGE}4" /mnt/home
+        echo -e "Enter Partition Size in GB (Enter nothing to consumes all the remaining memory):"
+        read $PARTITIONSIZE
+
+        echo -e "Partitioning Partition number:$PARTCOUNT\n"
+        sgdisk -n "${PARTCOUNT}"::+$PARTITIONSIZE -t "${PARTCOUNT}":${PARTCODE[$PARTCOUNT]} -c "${PARTCOUNT}":$PARTITIONLABEL $SELECTEDSTORAGE
+        $PARTCOUNT++
+        if [[ $"{#PARTITIONSIZE}" -ne 0 ]]; then
+            echo -e "Do you want to add more partition?\n[Y][N]:"
+            read $repeat
+        
+            case $repeat in
+                y|Y|Yes|YES)
+                $repeat="true";;
+                n|N|No|NO)
+                $repeat="false";;
+                *)
+                    while [[ $ERRORREPEAT == "true" ]]; do
+                    echo -e "Invalid input\n Do you want to add more partition?\n[Y][N]:"
+                    read $repeat
+                
+                    case $repeat in
+                        y|Y|Yes|YES)
+                        $repeat="true"
+                        $ERRORREPEAT="false"
+                        ;;
+                        n|N|No|NO)
+                        $repeat="false"
+                        $ERRORREPEAT="false"
+                        ;;
+                        *)
+                        $ERRORREPEAT="true"
+                        ;;
+                    esac
+
+                done
+                ;;
+            esac
+        else
+            repeat="false"
+        fi
+    done
+
+    echo "Making filesystems..."
+
+    mkfs.fat -F32 "${SELECTEDSTORAGE}1"
+    mkswap "${SELECTEDSTORAGE}2"
+    swapon "${SELECTEDSTORAGE}2"
+    mkfs.ext4 "${SELECTEDSTORAGE}3"
+   
+    repeat="true"
+    while [[ repeat == "true" ]]; do
+        echo -e "Do you want to encrypt your home partition?\n[Y][N]:"
+        read $repeat
+
+        case $repeat in
+            y|Y|Yes|YES)
+             echo "Initializing encryption..."
+             sleep 2
+             cryptsetup luksFormat ${SELECTEDSTORAGE}4
+             cryptsetup open ${SELECTEDSTORAGE}4 crypthome
+                while [[ ! -e "/dev/mapper/crypthome" ]]; do
+                    echo "Invalid password, try again."
+                    cryptsetup open "${SELECTEDSTORAGE}"4 crypthome
+                done
+             $repeat="false"
+             ;;
+            n|N|No|NO)
+            $repeat="false"
+            mkfs.ext4 "${SELECTEDSTORAGE}4"
+            ;;
+            *)
+            $repeat="true"
+            ;;
+        esac
+    done
+
+mount ${SELECTEDSTORAGE}3 /mnt
 pacstrap /mnt base base-devel linux-zen linux-zen-headers vim amd-ucode
 
 genfstab -U /mnt >> /mnt/etc/fstab
-arch-chroot /mnt
-echo "DONE :)"
+else 
+    echo -e "Block device is not found Enter a correct device block to continue"
+
+
+fi
