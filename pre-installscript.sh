@@ -6,8 +6,11 @@ PARTITIONLABEL=""
 PARTITIONSIZE=0
 repeat="true"
 MAXINDEX=0
+CONTEXTINDEX=0
 ERRORREPEAT="true"
+HOMEPATH=""
 PARTCODE=("EF00" "8200" "8300")
+PARTITIONCONTEXT=("BOOT" "SWAP" "ROOT" "HOME" "OTHER")
 if [[ ! -e "/usr/bin/gdisk" ]]; then
     pacman -S gdisk --noconfirm
 fi
@@ -21,7 +24,8 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
 
     sgdisk -o $SELECTEDSTORAGE
     while [[ $repeat == "true" ]]; do
-        echo -n "Enter Partition name:"
+
+        echo -n "Enter $PARTITIONCONTEXT[$CONTEXTINDEX] name:"
         read PARTITIONLABEL
 
         echo -e "Enter Partition Size (Enter nothing to consumes all the remaining memory)\n Ex. +1GB, +20GB, +512MB:"
@@ -32,6 +36,9 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
         PARTCOUNT=$(( $PARTCOUNT + 1 ))
         if [[ $PARTCOUNT -lt 4 ]]; then
         MAXINDEX=$PARTCOUNT-1
+        fi
+        if [[ $PARTCOUNT -lt 5 ]]; then
+        CONTEXTINDEX=$PARTCOUNT-1
         fi
         if [[ "${#PARTITIONSIZE}" -ne 0 ]]; then
             echo -e "Do you want to add more partition?\n[Y][N]:"
@@ -93,11 +100,14 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
                     cryptsetup open "${SELECTEDSTORAGE}"4 crypthome
                 done
              repeat="false"
-             mkfs.ext4 /dev/mapper/crypthome
+             HOMEPATH="/dev/mapper/crypthome"
+             mkfs.ext4 $HOMEPATH
+             
              ;;
             n|N|No|NO)
+            HOMEPATH="${SELECTEDSTORAGE}4"
             repeat="false"
-            mkfs.ext4 "${SELECTEDSTORAGE}4"
+            mkfs.ext4 "$HOMEPATH"
             ;;
             *)
             repeat="true"
@@ -109,7 +119,7 @@ mount ${SELECTEDSTORAGE}3 /mnt
 mkdir -p /mnt/boot
 mount ${SELECTEDSTORAGE}1 /mnt/boot
 mkdir -p /mnt/home
-mount ${SELECTEDSTORAGE}4 /mnt/boot
+mount $HOMEPATH /mnt/home
 pacstrap /mnt base base-devel linux-zen linux-zen-headers vim amd-ucode
 
 genfstab -U /mnt >> /mnt/etc/fstab
