@@ -12,7 +12,7 @@ if [[ ! -e "/usr/bin/gdisk" ]]; then
     pacman -S gdisk --noconfirm
 fi
 lsblk
-echo -e "Enter secondary storage location to specify the root installation\n Ex. /dev/sda, /dev/nvme0n1"
+echo -e "Enter secondary storage location to specify the installation\n Ex. /dev/sda, /dev/nvme0n1"
 read SELECTEDSTORAGE
 
 echo $SELECTEDSTORAGE
@@ -112,6 +112,7 @@ mount ${SELECTEDSTORAGE}4 /mnt/boot
 pacstrap /mnt base base-devel linux-zen linux-zen-headers vim amd-ucode
 
 genfstab -U /mnt >> /mnt/etc/fstab
+echo "DONE!"
 else 
     echo -e "Block device is not found Enter a correct device block to continue"
 fi
