@@ -93,6 +93,7 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
                     cryptsetup open "${SELECTEDSTORAGE}"4 crypthome
                 done
              repeat="false"
+             mkfs.ext4 /dev/mapper/crypthome
              ;;
             n|N|No|NO)
             repeat="false"
