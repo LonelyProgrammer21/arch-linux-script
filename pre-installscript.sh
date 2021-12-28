@@ -77,9 +77,9 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
     mkfs.ext4 "${SELECTEDSTORAGE}3"
    
     repeat="true"
-    while [[ repeat == "true" ]]; do
+    while [[ $repeat == "true" ]]; do
         echo -e "Do you want to encrypt your home partition?\n[Y][N]:"
-        read $repeat
+        read repeat
 
         case $repeat in
             y|Y|Yes|YES)
@@ -91,14 +91,14 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
                     echo "Invalid password, try again."
                     cryptsetup open "${SELECTEDSTORAGE}"4 crypthome
                 done
-             $repeat="false"
+             repeat="false"
              ;;
             n|N|No|NO)
-            $repeat="false"
+            repeat="false"
             mkfs.ext4 "${SELECTEDSTORAGE}4"
             ;;
             *)
-            $repeat="true"
+            repeat="true"
             ;;
         esac
     done
