@@ -25,7 +25,7 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
     sgdisk -o $SELECTEDSTORAGE
     while [[ $repeat == "true" ]]; do
 
-        echo -n "Enter $PARTITIONCONTEXT[$CONTEXTINDEX] name:"
+        echo -n "Enter ${PARTITIONCONTEXT[$CONTEXTINDEX]} name:"
         read PARTITIONLABEL
 
         echo -e "Enter Partition Size (Enter nothing to consumes all the remaining memory)\n Ex. +1GB, +20GB, +512MB:"
