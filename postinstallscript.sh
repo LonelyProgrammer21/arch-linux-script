@@ -29,9 +29,7 @@ echo LANG=en_US.UTF-8 > /etc/locale.conf
 echo $hostname > /etc/hostname
 
 # Used to concatenate the existing hostfile, adding the hostname to the existing host file
-echo -e "127.0.0.1\t $hostname\n
-	::1\t $hostname\n127.0.0.1\t${hostname}.localdomain\t $hostname"
-	>> /etc/hosts
+echo -e "127.0.0.1\t $hostname\n::1\t\t $hostname\n127.0.0.1\t${hostname}.localdomain\t $hostname" >> /etc/hosts
 
 # Install the bootloader assuming the EFI partition is mounted to $grub_target
 grub-install --target=x86_64-efi --efi-directory=$grub_target --bootloader-id=ArchLinux
