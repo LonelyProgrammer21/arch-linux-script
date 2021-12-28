@@ -5,6 +5,7 @@ PARTCOUNT=1
 PARTITIONLABEL=""
 PARTITIONSIZE=0
 repeat="true"
+MAXINDEX=0
 ERRORREPEAT="true"
 PARTCODE=("EF00" "8200" "8300")
 if [[ ! -e "/usr/bin/gdisk" ]]; then
@@ -12,47 +13,51 @@ if [[ ! -e "/usr/bin/gdisk" ]]; then
 fi
 lsblk
 echo -e "Enter secondary storage location to specify the root installation\n Ex. /dev/sda, /dev/nvme0n1"
-read $SELECTEDSTORAGE
+read SELECTEDSTORAGE
 
+echo $SELECTEDSTORAGE
 
 if [[ -e "$SELECTEDSTORAGE" ]]; then
 
     sgdisk -o $SELECTEDSTORAGE
-    while [[ repeat == "true" ]]; do
+    while [[ $repeat == "true" ]]; do
         echo "Enter Partition name:"
-        read $PARTITIONLABEL
+        read PARTITIONLABEL
 
-        echo -e "Enter Partition Size in GB (Enter nothing to consumes all the remaining memory):"
-        read $PARTITIONSIZE
+        echo -e "Enter Partition Size (Enter nothing to consumes all the remaining memory)\n Ex. +1GB, +20GB, +512MB:"
+        read PARTITIONSIZE
 
         echo -e "Partitioning Partition number:$PARTCOUNT\n"
-        sgdisk -n "${PARTCOUNT}"::+$PARTITIONSIZE -t "${PARTCOUNT}":${PARTCODE[$PARTCOUNT]} -c "${PARTCOUNT}":$PARTITIONLABEL $SELECTEDSTORAGE
-        $PARTCOUNT++
-        if [[ $"{#PARTITIONSIZE}" -ne 0 ]]; then
+        sgdisk -n "${PARTCOUNT-1}"::$PARTITIONSIZE -t "${PARTCOUNT-1}":${PARTCODE[$MAXINDEX]} -c "${PARTCOUNT-1}":$PARTITIONLABEL $SELECTEDSTORAGE
+        if [[ $PARTCOUNT -ne 3 ]]; then
+        PARTCOUNT=$(( $PARTCOUNT + 1 ))
+        MAXINDEX=$PARTCOUNT-1
+        fi
+        if [[ "${#PARTITIONSIZE}" -ne 0 ]]; then
             echo -e "Do you want to add more partition?\n[Y][N]:"
-            read $repeat
+            read repeat
         
             case $repeat in
                 y|Y|Yes|YES)
-                $repeat="true";;
+                repeat="true";;
                 n|N|No|NO)
-                $repeat="false";;
+                repeat="false";;
                 *)
                     while [[ $ERRORREPEAT == "true" ]]; do
                     echo -e "Invalid input\n Do you want to add more partition?\n[Y][N]:"
-                    read $repeat
+                    read repeat
                 
                     case $repeat in
                         y|Y|Yes|YES)
-                        $repeat="true"
-                        $ERRORREPEAT="false"
+                        repeat="true"
+                        ERRORREPEAT="false"
                         ;;
                         n|N|No|NO)
-                        $repeat="false"
-                        $ERRORREPEAT="false"
+                        repeat="false"
+                        ERRORREPEAT="false"
                         ;;
                         *)
-                        $ERRORREPEAT="true"
+                        ERRORREPEAT="true"
                         ;;
                     esac
 
