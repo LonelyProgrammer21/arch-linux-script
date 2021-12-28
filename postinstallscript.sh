@@ -58,4 +58,4 @@ systemctl enable bluetooth
 # Flexing i use btw linux user uwu
 neofetch
 echo "All done! :>"
-read -p "Press any key to exit." 
+read -p "Press any key to exit." tmp
