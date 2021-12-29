@@ -120,7 +120,7 @@ mkdir -p /mnt/boot
 mount ${SELECTEDSTORAGE}1 /mnt/boot
 mkdir -p /mnt/home
 mount $HOMEPATH /mnt/home
-pacstrap /mnt base base-devel linux-zen linux-zen-headers vim amd-ucode
+pacstrap /mnt base base-devel linux-zen linux-zen-headers vim amd-ucode grub efibootmgr linux-firmware
 
 genfstab -U /mnt >> /mnt/etc/fstab
 echo "DONE!"
