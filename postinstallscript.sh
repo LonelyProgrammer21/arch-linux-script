@@ -15,7 +15,7 @@ USER="xelectro"
 
 
 if [[ -e "/dev/mapper/crypthome" ]]; then
-	PARENTDEV=$(dmsetup -o devname /dev/mapper/crypthome | grep -o "(.*)$" | sed -e 's/(//g' -e 's/)//g')
+	PARENTDEV=$(dmsetup deps -o devname /dev/mapper/crypthome | grep -o "(.*)$" | sed -e 's/(//g' -e 's/)//g')
 	HOMEUID=$(blkid -s UUID -o value /dev/$PARENTDEV)
 
 	echo -e "crypthome\t UUID=$HOMEUID\t none\n luks,timeout=150" >> /etc/crypttab
