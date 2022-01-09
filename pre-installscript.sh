@@ -12,7 +12,7 @@ if [[ ! -e "/usr/bin/gdisk" ]]; then
 fi
 lsblk
 echo -e "Enter secondary storage location to specify the root installation\n Ex. /dev/sda, /dev/nvme0n1"
-read $SELECTEDSTORAGE
+read SELECTEDSTORAGE
 
 
 if [[ -e "$SELECTEDSTORAGE" ]]; then
@@ -27,39 +27,39 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
         sgdisk -o $SELECTEDSTORAGE
         while [[ repeat == "true" ]]; do
             echo "Enter Partition name:"
-            read $PARTITIONLABEL
+            read PARTITIONLABEL
 
             echo -e "Enter Partition Size in GB (Enter nothing to consumes all the remaining memory):"
-            read $PARTITIONSIZE
+            read PARTITIONSIZE
 
             echo -e "Partitioning Partition number:$PARTCOUNT\n"
             sgdisk -n "${PARTCOUNT}"::+$PARTITIONSIZE -t "${PARTCOUNT}":${PARTCODE[$PARTCOUNT]} -c "${PARTCOUNT}":$PARTITIONLABEL $SELECTEDSTORAGE
-            $PARTCOUNT++
+            PARTCOUNT++
             if [[ $"{#PARTITIONSIZE}" -ne 0 ]]; then
                 echo -e "Do you want to add more partition?\n[Y][N]:"
-                read $repeat
+                read repeat
         
                 case $repeat in
                     y|Y|Yes|YES)
-                    $repeat="true";;
+                    repeat="true";;
                     n|N|No|NO)
-                    $repeat="false";;
+                    repeat="false";;
                 *)
                     while [[ $ERRORREPEAT == "true" ]]; do
                         echo -e "Invalid input\n Do you want to add more partition?\n[Y][N]:"
-                        read $repeat
+                        read repeat
                 
                         case $repeat in
                             y|Y|Yes|YES)
-                                $repeat="true"
-                                $ERRORREPEAT="false"
+                                repeat="true"
+                                ERRORREPEAT="false"
                                 ;;
                             n|N|No|NO)
-                                $repeat="false"
-                                $ERRORREPEAT="false"
+                                repeat="false"
+                                ERRORREPEAT="false"
                             ;;
                             *)
-                                $ERRORREPEAT="true"
+                                ERRORREPEAT="true"
                             ;;
                         esac
 
@@ -81,7 +81,7 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
         repeat="true"
         while [[ repeat == "true" ]]; do
             echo -e "Do you want to encrypt your home partition?\n[Y][N]:"
-            read $repeat
+            read repeat
 
             case $repeat in
                 y|Y|Yes|YES)
@@ -93,14 +93,14 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
                         echo "Invalid password, try again."
                         cryptsetup open "${SELECTEDSTORAGE}"4 crypthome
                     done
-                    $repeat="false"
+                    repeat="false"
                     ;;
                 n|N|No|NO)
-                    $repeat="false"
+                    repeat="false"
                     mkfs.ext4 "${SELECTEDSTORAGE}4"
                     ;;
                 *)
-                    $repeat="true"
+                    repeat="true"
                     ;;
             esac
         done
