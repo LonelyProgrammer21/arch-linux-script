@@ -19,98 +19,100 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
 
     read -p "The selected device is $SELECTEDSTORAGE Are you sure to wipe this partition?[Y][N]:" CHOICE
 
-    if [[ -z $CHOICE || ! $CHOICE == "|y|Y|Yes|YES|" ]]; then
-        echo "Exiting now.."
-        exit
-    else
+    case $CHOICE in
+        y|Yes|YES)
 
-        sgdisk -o $SELECTEDSTORAGE
-        while [[ repeat == "true" ]]; do
-            echo "Enter Partition name:"
-            read PARTITIONLABEL
+                sgdisk -o $SELECTEDSTORAGE
+            while [[ repeat == "true" ]]; do
+                echo "Enter Partition name:"
+                read PARTITIONLABEL
 
-            echo -e "Enter Partition Size in GB (Enter nothing to consumes all the remaining memory):"
-            read PARTITIONSIZE
+                echo -e "Enter Partition Size in GB (Enter nothing to consumes all the remaining memory):"
+                read PARTITIONSIZE
 
-            echo -e "Partitioning Partition number:$PARTCOUNT\n"
-            sgdisk -n "${PARTCOUNT}"::+$PARTITIONSIZE -t "${PARTCOUNT}":${PARTCODE[$PARTCOUNT]} -c "${PARTCOUNT}":$PARTITIONLABEL $SELECTEDSTORAGE
-            PARTCOUNT++
-            if [[ $"{#PARTITIONSIZE}" -ne 0 ]]; then
-                echo -e "Do you want to add more partition?\n[Y][N]:"
-                read repeat
+                echo -e "Partitioning Partition number:$PARTCOUNT\n"
+                sgdisk -n "${PARTCOUNT}"::+$PARTITIONSIZE -t "${PARTCOUNT}":${PARTCODE[$PARTCOUNT]} -c "${PARTCOUNT}":$PARTITIONLABEL $SELECTEDSTORAGE
+                PARTCOUNT++
+                if [[ $"{#PARTITIONSIZE}" -ne 0 ]]; then
+                    echo -e "Do you want to add more partition?\n[Y][N]:"
+                    read repeat
         
+                    case $repeat in
+                        y|Y|Yes|YES)
+                        repeat="true";;
+                        n|N|No|NO)
+                        repeat="false";;
+                    *)
+                        while [[ $ERRORREPEAT == "true" ]]; do
+                            echo -e "Invalid input\n Do you want to add more partition?\n[Y][N]:"
+                            read repeat
+                
+                            case $repeat in
+                                    y|Y|Yes|YES)
+                                    repeat="true"
+                                    ERRORREPEAT="false"
+                                ;;
+                                n|N|No|NO)
+                                    repeat="false"
+                                    ERRORREPEAT="false"
+                                ;;
+                                *)
+                                    ERRORREPEAT="true"
+                                ;;
+                            esac
+
+                        done
+                    ;;
+                esac
+                else
+                    repeat="false"
+                fi
+            done
+
+            echo "Making filesystems..."
+
+            mkfs.fat -F32 "${SELECTEDSTORAGE}1"
+            mkswap "${SELECTEDSTORAGE}2"
+            swapon "${SELECTEDSTORAGE}2"
+            mkfs.ext4 "${SELECTEDSTORAGE}3"
+   
+            repeat="true"
+            while [[ repeat == "true" ]]; do
+                echo -e "Do you want to encrypt your home partition?\n[Y][N]:"
+                read repeat
+
                 case $repeat in
                     y|Y|Yes|YES)
-                    repeat="true";;
+                        echo "Initializing encryption..."
+                        sleep 2
+                        cryptsetup luksFormat ${SELECTEDSTORAGE}4
+                        cryptsetup open ${SELECTEDSTORAGE}4 crypthome
+                        while [[ ! -e "/dev/mapper/crypthome" ]]; do
+                            echo "Invalid password, try again."
+                            cryptsetup open "${SELECTEDSTORAGE}"4 crypthome
+                        done
+                        repeat="false"
+                        ;;
                     n|N|No|NO)
-                    repeat="false";;
-                *)
-                    while [[ $ERRORREPEAT == "true" ]]; do
-                        echo -e "Invalid input\n Do you want to add more partition?\n[Y][N]:"
-                        read repeat
-                
-                        case $repeat in
-                            y|Y|Yes|YES)
-                                repeat="true"
-                                ERRORREPEAT="false"
-                                ;;
-                            n|N|No|NO)
-                                repeat="false"
-                                ERRORREPEAT="false"
-                            ;;
-                            *)
-                                ERRORREPEAT="true"
-                            ;;
-                        esac
+                        repeat="false"
+                        mkfs.ext4 "${SELECTEDSTORAGE}4"
+                        ;;
+                    *)
+                        repeat="true"
+                        ;;
+                esac
+            done
 
-                    done
-                ;;
-            esac
-            else
-                repeat="false"
-            fi
-        done
+            mount ${SELECTEDSTORAGE}3 /mnt
+            pacstrap /mnt base base-devel linux-zen linux-zen-headers vim amd-ucode
 
-        echo "Making filesystems..."
-
-        mkfs.fat -F32 "${SELECTEDSTORAGE}1"
-        mkswap "${SELECTEDSTORAGE}2"
-        swapon "${SELECTEDSTORAGE}2"
-        mkfs.ext4 "${SELECTEDSTORAGE}3"
-   
-        repeat="true"
-        while [[ repeat == "true" ]]; do
-            echo -e "Do you want to encrypt your home partition?\n[Y][N]:"
-            read repeat
-
-            case $repeat in
-                y|Y|Yes|YES)
-                    echo "Initializing encryption..."
-                    sleep 2
-                    cryptsetup luksFormat ${SELECTEDSTORAGE}4
-                    cryptsetup open ${SELECTEDSTORAGE}4 crypthome
-                    while [[ ! -e "/dev/mapper/crypthome" ]]; do
-                        echo "Invalid password, try again."
-                        cryptsetup open "${SELECTEDSTORAGE}"4 crypthome
-                    done
-                    repeat="false"
-                    ;;
-                n|N|No|NO)
-                    repeat="false"
-                    mkfs.ext4 "${SELECTEDSTORAGE}4"
-                    ;;
-                *)
-                    repeat="true"
-                    ;;
-            esac
-        done
-
-        mount ${SELECTEDSTORAGE}3 /mnt
-        pacstrap /mnt base base-devel linux-zen linux-zen-headers vim amd-ucode
-
-        genfstab -U /mnt >> /mnt/etc/fstab
-    
-    fi
+            genfstab -U /mnt >> /mnt/etc/fstab
+            ;;
+            *)
+            echo "Exiting now.."
+            exit
+            ;;
+    esac
 else 
     echo -e "Block device is not found Enter a correct device block to continue"
 fi
