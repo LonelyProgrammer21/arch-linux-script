@@ -6,6 +6,7 @@ PARTITIONLABEL=""
 PARTITIONSIZE=0
 repeat="true"
 ERRORREPEAT="true"
+PARTLEGEND=""
 PARTCODE=("EF00" "8200" "8300")
 if [[ ! -e "/usr/bin/gdisk" ]]; then
     pacman -S gdisk --noconfirm
@@ -24,6 +25,21 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
 
                 sgdisk -o $SELECTEDSTORAGE
             while [[ repeat == "true" ]]; do
+
+                case $PARTCOUNT in
+                1) 
+                PARTLEGEND="BOOT" ;;
+                2) 
+                PARTLEGEND="SWAP" ;;
+                3)
+                PARTLEGEND="ROOT" ;;
+                4)
+                PARTLEGEND="HOME" ;;
+                *)
+                ;;
+                esac
+
+                echo "PARTITION TYPE: $PARTLEGEND"
                 echo "Enter Partition name:"
                 read PARTITIONLABEL
 
@@ -63,7 +79,7 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
 
                         done
                     ;;
-                esac
+                    esac
                 else
                     repeat="false"
                 fi
