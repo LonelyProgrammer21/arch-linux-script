@@ -6,6 +6,9 @@
 # own test case and post-install arch linux install. But you can use it if you want :>
 
 # Variable used for all sorts of statement occuring while execution
+
+arch-chroot /mnt
+
 TIMEZONE="/usr/share/zoneinfo/Asia/Manila"
 LOCALTIME="/etc/LOCALTIME"
 GRUB_TARGET="/boot/"

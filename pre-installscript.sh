@@ -123,6 +123,8 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
             pacstrap /mnt base base-devel linux-zen linux-zen-headers vim amd-ucode
 
             genfstab -U /mnt >> /mnt/etc/fstab
+            ./postinstallscript.sh
+            exit
             ;;
             *)
             echo "Exiting now.."
