@@ -1,7 +1,7 @@
 #!/bin/sh
 
 SELECTEDSTORAGE=""
-PARTCOUNT=0
+PARTCOUNT=1
 PARTITIONLABEL=""
 PARTITIONSIZE=0
 repeat="true"
@@ -49,7 +49,7 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
                 read PARTITIONSIZE
 
                 echo -e "Partitioning Partition number:$PARTCOUNT\n"
-                sgdisk -n "${PARTCOUNT}"::+$PARTITIONSIZE -t "${PARTCOUNT}":${PARTCODE[$PARTCOUNT]} -c "${PARTCOUNT}":$PARTITIONLABEL $SELECTEDSTORAGE
+                sgdisk -n "${PARTCOUNT}"::+$PARTITIONSIZE -t "${PARTCOUNT}":${PARTCODE[$PARTCOUNT-1]} -c "${PARTCOUNT}":$PARTITIONLABEL $SELECTEDSTORAGE
                 PARTCOUNT=$(($PARTCOUNT+1))
                 if [[ "${#PARTITIONSIZE}" -ne 0 ]]; then
                     echo -e "Do you want to add more partition?\n[Y][N]:"
