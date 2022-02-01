@@ -7,7 +7,7 @@ PARTITIONSIZE=0
 repeat="true"
 ERRORREPEAT="true"
 PARTLEGEND=""
-PARTCODE=("EF00" "8200" "8300")
+PARTCODE=("EF00" "8200" "8300" "8300")
 if [[ ! -e "/usr/bin/gdisk" ]]; then
     pacman -S gdisk --noconfirm
 fi
@@ -24,19 +24,19 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
         y|Yes|YES)
 
                 sgdisk -o $SELECTEDSTORAGE
-            while [[ repeat == "true" ]]; do
+            while [[ $repeat == "true" ]]; do
 
                 case $PARTCOUNT in
-                1) 
-                PARTLEGEND="BOOT" ;;
-                2) 
-                PARTLEGEND="SWAP" ;;
-                3)
-                PARTLEGEND="ROOT" ;;
-                4)
-                PARTLEGEND="HOME" ;;
-                *)
-                ;;
+                    1) 
+                    PARTLEGEND="BOOT" ;;
+                    2) 
+                    PARTLEGEND="SWAP" ;;
+                    3)
+                    PARTLEGEND="ROOT" ;;
+                    4)
+                    PARTLEGEND="HOME" ;;
+                    *)
+                    ;;
                 esac
 
                 echo "PARTITION TYPE: $PARTLEGEND"
@@ -48,7 +48,7 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
 
                 echo -e "Partitioning Partition number:$PARTCOUNT\n"
                 sgdisk -n "${PARTCOUNT}"::+$PARTITIONSIZE -t "${PARTCOUNT}":${PARTCODE[$PARTCOUNT]} -c "${PARTCOUNT}":$PARTITIONLABEL $SELECTEDSTORAGE
-                PARTCOUNT++
+                PARTCOUNT=(($PARTCOUNT+1))
                 if [[ $"{#PARTITIONSIZE}" -ne 0 ]]; then
                     echo -e "Do you want to add more partition?\n[Y][N]:"
                     read repeat
