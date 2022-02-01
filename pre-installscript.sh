@@ -29,13 +29,13 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
             while [[ $repeat == "true" ]]; do
 
                 case $PARTCOUNT in
-                    0) 
-                    PARTLEGEND="BOOT" ;;
                     1) 
+                    PARTLEGEND="BOOT" ;;
+                    2) 
                     PARTLEGEND="SWAP" ;;
-                    2)
-                    PARTLEGEND="ROOT" ;;
                     3)
+                    PARTLEGEND="ROOT" ;;
+                    4)
                     PARTLEGEND="HOME" ;;
                     *)
                     ;;
@@ -111,6 +111,7 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
                         done
                         repeat="false"
                         HOMEPARTITION="/dev/mapper/crypthome"
+                        mkfs.ext4 $HOMEPARTITION
                         ;;
                     n|N|No|NO)
                         repeat="false"
