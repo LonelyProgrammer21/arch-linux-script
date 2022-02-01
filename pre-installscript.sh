@@ -5,6 +5,7 @@ PARTCOUNT=1
 PARTITIONLABEL=""
 PARTITIONSIZE=0
 repeat="true"
+HOMEPARTITION=""
 ERRORREPEAT="true"
 PARTLEGEND=""
 PARTCODE=("EF00" "8200" "8300" "8300")
@@ -109,10 +110,12 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
                             cryptsetup open "${SELECTEDSTORAGE}"4 crypthome
                         done
                         repeat="false"
+                        HOMEPARTITION="/dev/mapper/crypthome"
                         ;;
                     n|N|No|NO)
                         repeat="false"
                         mkfs.ext4 "${SELECTEDSTORAGE}4"
+                        HOMEPARTITION="${SELECTEDSTORAGE}4"
                         ;;
                     *)
                         repeat="true"
@@ -121,6 +124,13 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
             done
 
             mount ${SELECTEDSTORAGE}3 /mnt
+
+            mkdir -p /mnt/boot
+            mount ${SELECTEDSTORAGE}1 /mnt/boot
+
+            mkdir -p /mnt/home
+            mount $HOMEPARTITION /mnt/home
+
             pacstrap /mnt base base-devel linux-zen linux-zen-headers vim amd-ucode
 
             genfstab -U /mnt >> /mnt/etc/fstab
