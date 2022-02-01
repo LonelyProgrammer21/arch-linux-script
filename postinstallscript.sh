@@ -14,7 +14,7 @@ USER=""
 
 if [[ ! -e "/usr/lib/grub" ]]; then
 	pacman -S --noconfirm grub efibootmgr os-prober 
-
+fi
 if [[ -e "/dev/mapper/crypthome" ]]; then
 	PARENTDEV=$(dmsetup deps -o devname /dev/mapper/crypthome | grep -o "(.*)$" | sed -e 's/(//g' -e 's/)//g')
 	HOMEUID=$(blkid -s UUID -o value /dev/$PARENTDEV)
@@ -45,8 +45,7 @@ echo "Creating hostname..."
 echo $HOSTNAME > /etc/hostname
 
 # Used to concatenate the existing hostfile, adding the hostname to the existing host file
-echo -e "127.0.0.1\t $HOSTNAME\n
-	::1\t $hostname\n127.0.0.1\t${HOSTNAME}.localdomain\t $HOSTNAME"
+echo -e "127.0.0.1\t $HOSTNAME\n::1\t $hostname\n127.0.0.1\t${HOSTNAME}.localdomain\t $HOSTNAME"
 	>> /etc/hosts
 
 echo "Installing grub bootloader now..."

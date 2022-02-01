@@ -134,8 +134,9 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
             pacstrap /mnt base base-devel linux-zen linux-zen-headers vim amd-ucode
 
             genfstab -U /mnt >> /mnt/etc/fstab
-            arch-chroot /mnt /bin/bash ./postinstallscript.sh
-            exit
+            echo "Base install is now finished.."
+            echo "After the script is finished, type arch-chroot /mnt to your command line"
+            cp postintallscript.sh /mnt
             ;;
             *)
             echo "Exiting now.."
