@@ -103,6 +103,8 @@ for i in "${PKG[@]}"; do
 	pacman -S --no-confirm $i
 done
 
+systemctl enable sddm
+
 echo "All done! :>"
 read -p "Press enter to exit." TMP
 exit
