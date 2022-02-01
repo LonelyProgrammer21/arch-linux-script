@@ -94,7 +94,7 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
             mkfs.ext4 "${SELECTEDSTORAGE}3"
    
             repeat="true"
-            while [[ repeat == "true" ]]; do
+            while [[ $repeat == "true" ]]; do
                 echo -e "Do you want to encrypt your home partition?\n[Y][N]:"
                 read repeat
 
