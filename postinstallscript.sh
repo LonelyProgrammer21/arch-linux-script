@@ -45,8 +45,7 @@ echo "Creating hostname..."
 echo $HOSTNAME > /etc/hostname
 
 # Used to concatenate the existing hostfile, adding the hostname to the existing host file
-echo -e "127.0.0.1\t $HOSTNAME\n::1\t $hostname\n127.0.0.1\t${HOSTNAME}.localdomain\t $HOSTNAME"
-	>> /etc/hosts
+echo -e "127.0.0.1\t $HOSTNAME\n::1\t $hostname\n127.0.0.1\t${HOSTNAME}.localdomain\t $HOSTNAME" >> /etc/hosts
 
 echo "Installing grub bootloader now..."
 # Install the bootloader assuming the EFI partition is mounted to $GRUB_TARGET
@@ -88,6 +87,22 @@ systemctl enable bluetooth
 
 # Flexing i use btw linux user uwu
 neofetch
+PKGS=(
+	"xf86-video-vmware"
+	"plasma"
+	"firefox"
+	"chromium"
+	"git"
+	"discord"
+	"jdk-openjdk"
+	"jre-openjdk"
+	"java-openjfx"
+)
+
+for i in "${PKG[@]}"; do
+	pacman -S --no-confirm $i
+done
+
 echo "All done! :>"
 read -p "Press enter to exit." TMP
 exit

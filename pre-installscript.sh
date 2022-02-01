@@ -137,11 +137,10 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
             genfstab -U /mnt >> /mnt/etc/fstab
             echo "Base install is now finished.."
             echo "After the script is finished, type arch-chroot /mnt to your command line"
-            cp postintallscript.sh /mnt
+            cp ./postintallscript.sh /mnt
             ;;
             *)
             echo "Exiting now.."
-            exit
             ;;
     esac
 else 
