@@ -11,6 +11,7 @@ PARTCODE=("EF00" "8200" "8300" "8300")
 if [[ ! -e "/usr/bin/gdisk" ]]; then
     pacman -S gdisk --noconfirm
 fi
+sed -i 's/#Para/Para/g' /etc/pacman.conf
 lsblk
 echo -e "Enter secondary storage location to specify the root installation\n Ex. /dev/sda, /dev/nvme0n1"
 read SELECTEDSTORAGE
