@@ -1,7 +1,7 @@
 #!/bin/sh
 
 SELECTEDSTORAGE=""
-PARTCOUNT=1
+PARTCOUNT=0
 PARTITIONLABEL=""
 PARTITIONSIZE=0
 repeat="true"
@@ -29,13 +29,13 @@ if [[ -e "$SELECTEDSTORAGE" ]]; then
             while [[ $repeat == "true" ]]; do
 
                 case $PARTCOUNT in
-                    1) 
+                    0) 
                     PARTLEGEND="BOOT" ;;
-                    2) 
+                    1) 
                     PARTLEGEND="SWAP" ;;
-                    3)
+                    2)
                     PARTLEGEND="ROOT" ;;
-                    4)
+                    3)
                     PARTLEGEND="HOME" ;;
                     *)
                     ;;
