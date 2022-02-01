@@ -6,9 +6,6 @@
 # own test case and post-install arch linux install. But you can use it if you want :>
 
 # Variable used for all sorts of statement occuring while execution
-
-arch-chroot /mnt
-
 TIMEZONE="/usr/share/zoneinfo/Asia/Manila"
 LOCALTIME="/etc/LOCALTIME"
 GRUB_TARGET="/boot/"
@@ -37,21 +34,19 @@ sed -i 's/#en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen
 echo LANG=en_US.UTF-8 > /etc/locale.conf
 
 while [[ -z $HOSTNAME ]]; do
-
 	read -p "Enter hostname for your pc:" HOSTNAME
-
-	if [[ $HOSTNAME ~= "^*[!\@\#\$%\^&\*\(\)-+_':\\\.]*$" ]]; then
-		HOSTNAME = ""
+	if [[ -z $HOSTNAME ]]; then
+		echo "Hostname cannot be empty."
 	fi
 done
 
 echo "Creating hostname..."
 # Create a HOSTNAME file for the system
-echo $HOSTNAME > /etc/HOSTNAME
+echo $HOSTNAME > /etc/hostname
 
 # Used to concatenate the existing hostfile, adding the hostname to the existing host file
-echo -e "127.0.0.1\t $hostname\n
-	::1\t $hostname\n127.0.0.1\t${hostname}.localdomain\t $hostname"
+echo -e "127.0.0.1\t $HOSTNAME\n
+	::1\t $hostname\n127.0.0.1\t${HOSTNAME}.localdomain\t $HOSTNAME"
 	>> /etc/hosts
 
 echo "Installing grub bootloader now..."
@@ -66,9 +61,8 @@ mkinitcpio -P
 while [[ -z $USER ]]; do
 	read -p "Enter your username:" USER
 
-	if [[ $USER ~= "^*[!\@\#\$%\^&\*\(\)-+_':\\\.]*^" ]]; then
-		USER = ""
-		echo -e "Username should not contain any special characters...\nTry Again.\n"
+	if [[ -z $USER ]]; then
+		echo "Username cannot be empty."
 	fi
 done
 
