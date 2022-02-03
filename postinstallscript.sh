@@ -107,4 +107,3 @@ systemctl enable sddm
 
 echo "All done! :>"
 read -p "Press enter to exit." TMP
-exit
